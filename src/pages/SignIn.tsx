@@ -1,22 +1,39 @@
+import { useState } from "react"
 import { Input } from "../components/Input"
 import { Button } from "../components/Button"
 
 export function SignIn() {
-    return <form className="w-full flex flex-col gap-4">
-        <Input 
-            required 
-            legend="E-mail" 
-            type="email" 
-            placeholder="seu@email.com" 
-        />
+    const [ email, setEmail ] = useState("")
+    const [ password, setPassword ] = useState("")
+    const [ isLoading, setIsLoading ] = useState(false)
 
-        <Input 
-            required 
-            legend="Senha" 
-            type="password" 
-            placeholder="x*Wk/;a" 
-        />
+    function onSubmit(e: React.FormEvent) {
+        e.preventDefault()
 
-        <Button>Entrar</Button>
-    </form>
+        console.log(email, password)
+    }
+
+    return (
+        <form onSubmit={onSubmit} className="w-full flex flex-col gap-4">
+            <Input 
+                required 
+                legend="E-mail" 
+                type="email" 
+                placeholder="seu@email.com"
+                onChange={(e) => setEmail(e.target.value)}
+            />
+
+            <Input 
+                required 
+                legend="Senha" 
+                type="password" 
+                placeholder="x*Wk/;a"
+                onChange={(e) => setPassword(e.target.value)}
+            />
+
+            <Button type="submit" isLoading={isLoading}>
+                Entrar
+            </Button>
+        </form>
+    )
 }
