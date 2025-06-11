@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { useNavigate, useParams } from "react-router"
+import { z, ZodError } from "zod"
 
 import fileSvg from "../assets/file.svg"
 import { CATEGORIES, CATEGORIES_KEYS } from "../utils/categories"
@@ -9,10 +10,18 @@ import { Select } from "../components/Select"
 import { Upload } from "../components/Upload"
 import { Button } from "../components/Button"
 
+const refundSchema = z.object({
+  name: z.string().min(3, { message: "Informe um nome claro para sua solicitação." }),
+  category: z.string().min(1, { message: "Informe a categoria." }),
+  amount: z.coerce
+    .number({ message: "Informe um valor válido." })
+    .positive({ message: "Informe um válido e superior a zero" }),
+})
+
 export function Refund() {
-  const [name, setName] = useState("Teste")
-  const [amount, setAmount] = useState("7")
-  const [category, setCategory] = useState("transport")
+  const [name, setName] = useState("")
+  const [amount, setAmount] = useState("")
+  const [category, setCategory] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [filename, setFilename] = useState<File | null>(null)
 
@@ -26,8 +35,27 @@ export function Refund() {
       return navigate(-1)
     }
 
-    console.log(name, amount, category, filename)
-    navigate("/confirm", { state: { fromSubmit: true } })
+    try {
+      setIsLoading(true)
+
+      const data = refundSchema.parse({
+        name,
+        category,
+        amount: amount.replace(",", ".")
+      })
+
+      navigate("/confirm", { state: { fromSubmit: true } })
+    } catch (error) {
+      console.error("Erro ao enviar o formulário:", error)
+
+      if (error instanceof ZodError) {
+        return alert(error.errors[0].message)
+      }
+
+      alert("Erro ao enviar o formulário. Tente novamente mais tarde.")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
