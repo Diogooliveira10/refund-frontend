@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { createContext } from "react"
-import { set } from "zod/v4"
+import { api } from "../services/api"
 
 type AuthContext = {
   isLoading: boolean
@@ -21,6 +21,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem(`${LOCAL_STORAGE_KEY}:user`, JSON.stringify(data.user))
     localStorage.setItem(`${LOCAL_STORAGE_KEY}:token`, data.token)
 
+    api.defaults.headers.common["Authorization"] = `Bearer ${data.token}`
+
     setSession(data)
   }
 
@@ -38,6 +40,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const token = localStorage.getItem(`${LOCAL_STORAGE_KEY}:token`)
 
     if (user && token) {
+      api.defaults.headers.common["Authorization"] = `Bearer ${token}`
+
       setSession({
         user: JSON.parse(user),
         token,
